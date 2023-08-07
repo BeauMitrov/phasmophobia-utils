@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Item } from '../../data/Items';
+import { Item } from './Items';
 
 interface InformationProps {
   items: Item[];
@@ -62,11 +62,11 @@ export function Information({
   };
 
   return (
-    <div className="w-1/2 p-5 flex flex-col">
-      <h1 className="text-3xl text-left pb-3 uppercase font-bold text-foreground" style={{ fontFamily: 'Roboto' }}>Selected Items</h1>
+    <div className="flex flex-col">
+      <h1 className="text-3xl w-[30%] text-left uppercase font-bold text-foreground" style={{ fontFamily: 'Roboto' }}>Selected Items</h1>
       
       <div className="flex flex-row flex-grow">
-        <div className="flex flex-col flex-grow pr-3">
+        <div className="flex flex-col flex-grow">
           {items.map(item => (
             <div className="text-white" key={item.name}>
               <input

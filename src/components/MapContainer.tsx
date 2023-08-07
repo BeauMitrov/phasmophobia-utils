@@ -1,5 +1,4 @@
-import React from 'react';
-import { Map } from "../../data/Maps";
+import { Map } from "./Maps";
 
 interface MapContainerProps {
   title: string;
