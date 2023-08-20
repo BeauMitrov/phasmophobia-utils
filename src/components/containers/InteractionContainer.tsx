@@ -23,6 +23,7 @@ interface InformationProps {
   setisLinkedItems: (isDisabled: boolean) => void;
   updateLinkedItemsState: (isDisabled: boolean) => void;
   linkedItems: Record<string, boolean>;
+  handleItemDisable: (item: Item, isDisabled: boolean) => void;
 }
 
 export function Information(props: InformationProps): JSX.Element {
@@ -40,6 +41,7 @@ export function Information(props: InformationProps): JSX.Element {
     handleTierCycle,
     setisLinkedItems,
     updateLinkedItemsState,
+    handleItemDisable,
     linkedItems,
   } = props;
 
@@ -107,6 +109,10 @@ export function Information(props: InformationProps): JSX.Element {
                         onChange={(isChecked) => onItemChange(item, isChecked)}
                         label={item.name}
                         isLinked={linkedItems[item.name]}
+                        disabled={disabledItems[item.name]}
+                        onDisable={() =>
+                          handleItemDisable(item, !disabledItems[item.name])
+                        }
                       />
                     </div>
                     <div

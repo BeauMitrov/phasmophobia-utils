@@ -14,6 +14,11 @@ body {
   transform: scale(1.1);
 }
 
+.thick-line-through {
+  text-decoration-line: line-through;
+  text-decoration-thickness: 3px;
+}
+
 ::-webkit-scrollbar {
   width: 5px;
 }

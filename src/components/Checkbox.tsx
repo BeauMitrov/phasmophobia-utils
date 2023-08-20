@@ -4,6 +4,7 @@ interface CheckboxProps {
   label?: string;
   disabled?: boolean;
   isLinked?: boolean;
+  onDisable?: () => void;
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({
@@ -12,9 +13,18 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   label,
   disabled,
   isLinked,
+  onDisable,
 }) => {
+  const handleRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onDisable) onDisable();
+  };
+
   return (
-    <label className="flex items-center cursor-pointer">
+    <label
+      className="flex items-center cursor-pointer"
+      onContextMenu={handleRightClick}
+    >
       <input
         type="checkbox"
         className="hidden"
@@ -24,7 +34,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       />
       {label && (
         <span
-          className={`pl-2 ${
+          className={`pl-2 ${disabled ? "thick-line-through" : ""} ${
             isLinked
               ? "text-text-colour"
               : isChecked

@@ -71,6 +71,7 @@ export function Dashboard(): JSX.Element {
     setMaxMain,
     setMaxOptional,
     handleTierCycle,
+    handleItemDisable,
   };
 
   return (
@@ -81,12 +82,7 @@ export function Dashboard(): JSX.Element {
             className="bg-background-colour m-[2px] pl-[12px] pr-[12px]"
             key={title}
           >
-            <ItemContainer
-              title={title}
-              items={items}
-              onItemDisable={handleItemDisable}
-              {...commonProps}
-            />
+            <ItemContainer title={title} items={items} {...commonProps} />
           </div>
         ))}
       </div>

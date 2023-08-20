@@ -20,7 +20,7 @@ interface ItemContainerProps {
   linkedItems: Record<string, boolean>;
   isLinkedItems: boolean;
   onItemChange: (item: Item, isChecked: boolean) => void;
-  onItemDisable: (item: Item, isDisabled: boolean) => void;
+  handleItemDisable: (item: Item, isDisabled: boolean) => void;
   maxLight: number;
   maxMain: number;
   maxOptional: number;
@@ -39,7 +39,7 @@ export function ItemContainer({
   disabledItems,
   linkedItems,
   onItemChange,
-  onItemDisable,
+  handleItemDisable,
   isLinkedItems,
   maxLight,
   maxMain,
@@ -53,12 +53,12 @@ export function ItemContainer({
 }: ItemContainerProps): JSX.Element {
   const handleRightClick = (item: Item, e: React.MouseEvent) => {
     e.preventDefault();
-    onItemDisable(item, !disabledItems[item.name]);
+    handleItemDisable(item, !disabledItems[item.name]);
   };
 
   const toggleDisableAll = () => {
     const allDisabled = items.every((item) => disabledItems[item.name]);
-    items.forEach((item) => onItemDisable(item, !allDisabled));
+    items.forEach((item) => handleItemDisable(item, !allDisabled));
   };
 
   const randomizeContainerItems = () => {
