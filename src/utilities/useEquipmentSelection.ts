@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { itemData, Item } from "../components/models/Items";
+import { itemData, Item } from "../components/templates/ItemsTemplate";
 
 interface EquipmentSelection {
   selectedItems: Record<string, boolean>;

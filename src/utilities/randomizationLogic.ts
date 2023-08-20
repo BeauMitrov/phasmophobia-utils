@@ -1,4 +1,4 @@
-import { Item, itemData } from "../components/models/Items";
+import { Item, itemData } from "../components/templates/ItemsTemplate";
 
 export const shuffleArray = (array: Item[]) =>
   array.sort(() => Math.random() - 0.5);

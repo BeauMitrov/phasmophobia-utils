@@ -3,6 +3,7 @@ interface CheckboxProps {
   onChange: (checked: boolean) => void;
   label?: string;
   disabled?: boolean;
+  isLinked?: boolean;
 }
 
 export const Checkbox: React.FC<CheckboxProps> = ({
@@ -10,6 +11,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   onChange,
   label,
   disabled,
+  isLinked,
 }) => {
   return (
     <label className="flex items-center cursor-pointer">
@@ -23,7 +25,11 @@ export const Checkbox: React.FC<CheckboxProps> = ({
       {label && (
         <span
           className={`pl-2 ${
-            isChecked ? "text-text-colour" : "text-disable-text-colour"
+            isLinked
+              ? "text-text-colour"
+              : isChecked
+              ? "text-enabled"
+              : "text-text-colour/20"
           }`}
         >
           {label}

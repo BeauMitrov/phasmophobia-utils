@@ -1,4 +1,4 @@
-import { Item } from "../models/Items";
+import { Item } from "../templates/ItemsTemplate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
@@ -8,8 +8,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Checkbox } from "../Checkbox";
 import { getRandomizedItems } from "../../utilities/randomizationLogic";
-import { toRoman } from "../../utilities/ItemUtilities";
+import { toRoman, formatImageName } from "../../utilities/ItemUtilities";
 import { useEffect, useState } from "react";
+import { Tooltip } from "../Tooltip";
 
 interface ItemContainerProps {
   title: string;
@@ -135,29 +136,6 @@ export function ItemContainer({
   };
 
   const [visibleTooltip, setVisibleTooltip] = useState<string | null>(null);
-
-  function Tooltip({
-    content,
-    isVisible,
-  }: {
-    content: string;
-    isVisible: boolean;
-  }) {
-    return (
-      <div
-        className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 -translate-y-1/5 mb-2 px-2 py-1 text-sm text-white bg-black/70 rounded whitespace-nowrap font-[Roboto] z-30 ${
-          isVisible ? "block" : "hidden"
-        }`}
-      >
-        {content}
-      </div>
-    );
-  }
-
-  const formatItemNameForImage = (itemName: string): string => {
-    return itemName.replace(/\s+/g, "");
-  };
-
   const [numColumns, setNumColumns] = useState(6);
 
   useEffect(() => {
@@ -261,7 +239,7 @@ export function ItemContainer({
                 key={`${item.name}${tier}`}
                 src={`/phasmophobia-utils/assets/images/${
                   item.type
-                }/${formatItemNameForImage(item.name)}${tier}.png`}
+                }/${formatImageName(item.name)}${tier}.png`}
                 alt={item.name}
                 className={`scale-image absolute z-20 object-cover w-[90%] h-[90%] transform transition-transform duration-[50ms] ${
                   tier !== (itemTiers[item.name] || 2) && "hidden"

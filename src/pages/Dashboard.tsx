@@ -7,7 +7,7 @@ import {
   optionalItems,
   Item,
   itemData,
-} from "../components/models/Items";
+} from "../components/templates/ItemsTemplate";
 import { useEquipmentSelection } from "../utilities/useEquipmentSelection";
 
 export function Dashboard(): JSX.Element {
@@ -24,7 +24,7 @@ export function Dashboard(): JSX.Element {
 
   const [maxLight, setMaxLight] = useState<number>(1);
   const [maxMain, setMaxMain] = useState<number>(4);
-  const [maxOptional, setMaxOptional] = useState<number>(6);
+  const [maxOptional, setMaxOptional] = useState<number>(4);
   const [itemTiers, setItemTiers] = useState<Record<string, number>>({});
 
   const equipmentConfigs = useMemo(

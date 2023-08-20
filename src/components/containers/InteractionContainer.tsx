@@ -1,5 +1,5 @@
 import { Checkbox } from "../Checkbox";
-import { Item, itemData } from "../models/Items";
+import { Item, itemData } from "../templates/ItemsTemplate";
 import { getRandomizedItems } from "../../utilities/randomizationLogic";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,6 +22,7 @@ interface InformationProps {
   isLinkedItems: boolean;
   setisLinkedItems: (isDisabled: boolean) => void;
   updateLinkedItemsState: (isDisabled: boolean) => void;
+  linkedItems: Record<string, boolean>;
 }
 
 export function Information(props: InformationProps): JSX.Element {
@@ -39,6 +40,7 @@ export function Information(props: InformationProps): JSX.Element {
     handleTierCycle,
     setisLinkedItems,
     updateLinkedItemsState,
+    linkedItems,
   } = props;
 
   const groupedItems = items.reduce<Record<string, Item[]>>((acc, item) => {
@@ -98,23 +100,22 @@ export function Information(props: InformationProps): JSX.Element {
                     className="flex justify-between items-center"
                   >
                     <div
-                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none ${
-                        selectedItems[item.name]
-                          ? "text-text-colour"
-                          : "text-disable-text-colour"
-                      }`}
+                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none`}
                     >
                       <Checkbox
                         isChecked={selectedItems[item.name]}
                         onChange={(isChecked) => onItemChange(item, isChecked)}
                         label={item.name}
+                        isLinked={linkedItems[item.name]}
                       />
                     </div>
                     <div
-                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none ${
-                        selectedItems[item.name]
+                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none cursor-pointer ${
+                        linkedItems[item.name]
                           ? "text-text-colour"
-                          : "text-disable-text-colour"
+                          : selectedItems[item.name]
+                          ? "text-enabled"
+                          : "text-text-colour/20"
                       }`}
                       onClick={(e) => handleTierCycle(e, item, false)}
                       onContextMenu={(e) => handleTierCycle(e, item, true)}
@@ -131,17 +132,14 @@ export function Information(props: InformationProps): JSX.Element {
       <div className="flex flex-col space-y-2 mt-auto pb-[12px]">
         {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]">
             Placeholder
-        </button>
-        <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]">
-            Placeholder
         </button> */}
         <div className="relative flex items-center">
-          <label className="flex justify-center items-center relative w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto] cursor-pointer select-none">
+          <label className="flex justify-center items-center relative w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto] cursor-pointer select-none">
             <span className="text-center">Linked Items</span>
             <div className="flex items-center justify-center absolute top-1/2 transform -translate-y-1/2 right-4 p-1 border-[2px] w-[24px] h-[24px]">
               <input
                 type="checkbox"
-                className="opacity-0 absolute w-full h-full left-0 top-0 z-10"
+                className="opacity-0 absolute w-full h-full left-0 top-0 z-10 cursor-pointer"
                 onChange={(e) => {
                   setisLinkedItems(e.target.checked);
                   updateLinkedItemsState(e.target.checked);
@@ -157,8 +155,11 @@ export function Information(props: InformationProps): JSX.Element {
             </div>
           </label>
         </div>
+        {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]">
+          Settings
+        </button> */}
         <button
-          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]"
+          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
           onClick={randomizedItems}
         >
           Randomize

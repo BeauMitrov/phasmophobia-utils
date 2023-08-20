@@ -5,17 +5,16 @@ module.exports = {
   theme: {
     colors: {
       "text-colour": "#a0b7bb",
-      "disable-text-colour": "#232c2d",
       "border-colour": "#2e3535",
       "background-colour": "#161c1c",
       "cell-colour": "#0d1616",
-      "black": "#121212",
-      "enabled": "#ffb43d",
-      "disabled": "#fc2c28",
+      black: "#121212",
+      enabled: "#ffb43d",
+      disabled: "#fc2c28",
 
-      "white": "#fff",
-      "green": "#36e517",
-      "blue": "#3883fc",
+      white: "#fff",
+      green: "#36e517",
+      blue: "#3883fc",
       "blue-700": "#2b6cb0",
       "blue-800": "#2c5282",
       "blue-300": "#90cdf4",

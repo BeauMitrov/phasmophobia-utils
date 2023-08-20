@@ -10,3 +10,7 @@ export function toRoman(num: number): string {
       return "II";
   }
 }
+
+export const formatImageName = (itemName: string): string => {
+  return itemName.replace(/\s+/g, "");
+};
