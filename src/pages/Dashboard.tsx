@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ItemContainer } from "../components/containers/ItemContainer";
 import { Information } from "../components/containers/InteractionContainer";
+import { SettingsModal } from "../components/containers/SettingsModal";
 import {
   mainItems,
   lightItems,
@@ -20,6 +21,7 @@ export function Dashboard(): JSX.Element {
     handleItemDisable,
     setisLinkedItems,
     updateLinkedItemsState,
+    setDisabledItems,
   } = useEquipmentSelection();
 
   const [maxLight, setMaxLight] = useState<number>(1);
@@ -35,6 +37,9 @@ export function Dashboard(): JSX.Element {
     ],
     []
   );
+
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [modifiedItemData, setModifiedItemData] = useState(itemData);
 
   const handleTierCycle = (
     e: React.MouseEvent,
@@ -82,7 +87,12 @@ export function Dashboard(): JSX.Element {
             className="bg-background-colour m-[2px] pl-[12px] pr-[12px]"
             key={title}
           >
-            <ItemContainer title={title} items={items} {...commonProps} />
+            <ItemContainer
+              title={title}
+              items={items}
+              modifiedItemData={modifiedItemData}
+              {...commonProps}
+            />
           </div>
         ))}
       </div>
@@ -91,12 +101,26 @@ export function Dashboard(): JSX.Element {
         <div className="flex-grow overflow-auto m-[2px] pl-[12px] pr-[12px] bg-background-colour p-[2px]">
           <Information
             items={itemData}
+            modifiedItemData={modifiedItemData}
             setisLinkedItems={setisLinkedItems}
             updateLinkedItemsState={updateLinkedItemsState}
+            showSettingsModal={() => setIsSettingsVisible(true)}
             {...commonProps}
           />
         </div>
       </div>
+
+      {isSettingsVisible && (
+        <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black/60 z-50">
+          <SettingsModal
+            isSettingsVisible={isSettingsVisible}
+            onClose={() => setIsSettingsVisible(false)}
+            itemData={modifiedItemData}
+            setItemData={setModifiedItemData}
+            setDisabledItems={setDisabledItems}
+          />
+        </div>
+      )}
     </div>
   );
 }

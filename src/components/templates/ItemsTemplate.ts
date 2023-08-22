@@ -9,6 +9,8 @@ export interface Item {
   min: number;
   max: number;
   linked?: string[];
+  customMin?: number;
+  customMax?: number;
 }
 
 export const itemData: Item[] = [

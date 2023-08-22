@@ -23,7 +23,13 @@ interface InformationProps {
   setisLinkedItems: (isDisabled: boolean) => void;
   updateLinkedItemsState: (isDisabled: boolean) => void;
   linkedItems: Record<string, boolean>;
-  handleItemDisable: (item: Item, isDisabled: boolean) => void;
+  handleItemDisable: (
+    item: Item,
+    isDisabled: boolean,
+    overrideLevelCheck: boolean
+  ) => void;
+  showSettingsModal: () => void;
+  modifiedItemData: typeof itemData;
 }
 
 export function Information(props: InformationProps): JSX.Element {
@@ -43,6 +49,7 @@ export function Information(props: InformationProps): JSX.Element {
     updateLinkedItemsState,
     handleItemDisable,
     linkedItems,
+    modifiedItemData,
   } = props;
 
   const groupedItems = items.reduce<Record<string, Item[]>>((acc, item) => {
@@ -56,7 +63,7 @@ export function Information(props: InformationProps): JSX.Element {
   const randomizedItems = () => {
     const maxCounts = { light: maxLight, main: maxMain, optional: maxOptional };
     const randomizedResult = getRandomizedItems(
-      itemData,
+      modifiedItemData,
       maxCounts,
       disabledItems,
       isLinkedItems
@@ -68,11 +75,15 @@ export function Information(props: InformationProps): JSX.Element {
       newTiers[rItem.item.name] = rItem.tier;
     });
 
-    itemData.forEach((item) => {
+    modifiedItemData.forEach((item) => {
       if (!randomizedResult.some((rItem) => rItem.item.name === item.name)) {
         onItemChange(item, false);
+
+        const minTier = item.customMin || item.min;
+        const maxTier = item.customMax || item.max;
+
         newTiers[item.name] =
-          Math.floor(Math.random() * (item.max - item.min + 1)) + item.min;
+          Math.floor(Math.random() * (maxTier - minTier + 1)) + minTier;
       }
     });
 
@@ -111,7 +122,11 @@ export function Information(props: InformationProps): JSX.Element {
                         isLinked={linkedItems[item.name]}
                         disabled={disabledItems[item.name]}
                         onDisable={() =>
-                          handleItemDisable(item, !disabledItems[item.name])
+                          handleItemDisable(
+                            item,
+                            !disabledItems[item.name],
+                            true
+                          )
                         }
                       />
                     </div>
@@ -161,9 +176,12 @@ export function Information(props: InformationProps): JSX.Element {
             </div>
           </label>
         </div>
-        {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]">
+        <button
+          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
+          onClick={props.showSettingsModal}
+        >
           Settings
-        </button> */}
+        </button>
         <button
           className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
           onClick={randomizedItems}

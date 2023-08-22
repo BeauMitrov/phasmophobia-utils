@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { itemData, Item } from "../components/templates/ItemsTemplate";
+import { unlockLevels } from "../components/templates/LevelsTemplate";
 
 interface EquipmentSelection {
   selectedItems: Record<string, boolean>;
@@ -7,12 +8,22 @@ interface EquipmentSelection {
   linkedItems: Record<string, boolean>;
   isLinkedItems: boolean;
   onItemChange: (item: Item, isChecked: boolean) => void;
-  handleItemDisable: (item: Item, isDisabled: boolean) => void;
+  handleItemDisable: (
+    item: Item,
+    isDisabled: boolean,
+    overrideLevelCheck: boolean
+  ) => void;
   setisLinkedItems: (isDisabled: boolean) => void;
   updateLinkedItemsState: (isDisabled: boolean) => void;
+  setPlayerLevel: React.Dispatch<React.SetStateAction<number>>;
+  setDisabledItems: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >;
 }
 
 export function useEquipmentSelection(): EquipmentSelection {
+  const [playerLevel, setPlayerLevel] = useState<number>(0);
+
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     Object.fromEntries(itemData.map((item) => [item.name, false]))
   );
@@ -94,7 +105,24 @@ export function useEquipmentSelection(): EquipmentSelection {
     setLinkedItems(newLinkedItems);
   };
 
-  const handleItemDisable = (item: Item, isDisabled: boolean) => {
+  const handleItemDisable = (
+    item: Item,
+    isDisabled: boolean,
+    overrideLevelCheck = false
+  ) => {
+    if (!overrideLevelCheck) {
+      const itemUnlockData = unlockLevels.find((u) => u.name === item.name);
+
+      const firstTierUnlockLevel = itemUnlockData?.unlocks[0]?.unlockLevel;
+
+      if (
+        firstTierUnlockLevel !== undefined &&
+        playerLevel < firstTierUnlockLevel
+      ) {
+        isDisabled = true;
+      }
+    }
+
     setDisabledItems((prev) => ({ ...prev, [item.name]: isDisabled }));
 
     if (isDisabled) {
@@ -114,5 +142,7 @@ export function useEquipmentSelection(): EquipmentSelection {
     handleItemDisable,
     setisLinkedItems,
     updateLinkedItemsState,
+    setDisabledItems,
+    setPlayerLevel,
   };
 }

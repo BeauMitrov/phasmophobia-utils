@@ -37,8 +37,11 @@ export const getRandomizedItems = (
 
     return shuffledItems.map((item) => {
       const tier =
-        Math.floor(Math.random() * (item.max - item.min + 1)) + item.min;
-      console.log(`Item: ${item.name}, Tier: ${tier}`);
+        Math.floor(
+          Math.random() *
+            ((item.customMax || item.max) - (item.customMin || item.min) + 1)
+        ) + (item.customMin || item.min);
+
       return { item, tier };
     });
   };

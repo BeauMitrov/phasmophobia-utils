@@ -1,4 +1,4 @@
-import { Item } from "../templates/ItemsTemplate";
+import { Item, itemData } from "../templates/ItemsTemplate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBan,
@@ -20,7 +20,11 @@ interface ItemContainerProps {
   linkedItems: Record<string, boolean>;
   isLinkedItems: boolean;
   onItemChange: (item: Item, isChecked: boolean) => void;
-  handleItemDisable: (item: Item, isDisabled: boolean) => void;
+  handleItemDisable: (
+    item: Item,
+    isDisabled: boolean,
+    overrideLevelCheck: boolean
+  ) => void;
   maxLight: number;
   maxMain: number;
   maxOptional: number;
@@ -30,6 +34,7 @@ interface ItemContainerProps {
   setMaxMain: React.Dispatch<React.SetStateAction<number>>;
   setMaxOptional: React.Dispatch<React.SetStateAction<number>>;
   handleTierCycle: (e: React.MouseEvent, item: Item, reverse: boolean) => void;
+  modifiedItemData: typeof itemData;
 }
 
 export function ItemContainer({
@@ -50,15 +55,16 @@ export function ItemContainer({
   setMaxMain,
   setMaxOptional,
   handleTierCycle,
+  modifiedItemData,
 }: ItemContainerProps): JSX.Element {
   const handleRightClick = (item: Item, e: React.MouseEvent) => {
     e.preventDefault();
-    handleItemDisable(item, !disabledItems[item.name]);
+    handleItemDisable(item, !disabledItems[item.name], true);
   };
 
   const toggleDisableAll = () => {
     const allDisabled = items.every((item) => disabledItems[item.name]);
-    items.forEach((item) => handleItemDisable(item, !allDisabled));
+    items.forEach((item) => handleItemDisable(item, !allDisabled, true));
   };
 
   const randomizeContainerItems = () => {
@@ -86,6 +92,7 @@ export function ItemContainer({
       disabledItems,
       isLinkedItems
     );
+
     const newTiers: Record<string, number> = {};
 
     randomizedResult.forEach((rItem) => {
@@ -94,8 +101,14 @@ export function ItemContainer({
     });
 
     items.forEach((item) => {
+      const modifiedItem =
+        modifiedItemData.find((mItem) => mItem.name === item.name) || item;
+
+      const minTier = modifiedItem.customMin || modifiedItem.min;
+      const maxTier = modifiedItem.customMax || modifiedItem.max;
+
       newTiers[item.name] =
-        Math.floor(Math.random() * (item.max - item.min + 1)) + item.min;
+        Math.floor(Math.random() * (maxTier - minTier + 1)) + minTier;
     });
 
     setItemTiers((prevTiers) => ({ ...prevTiers, ...newTiers }));
@@ -159,12 +172,11 @@ export function ItemContainer({
     <div className="equipment-content pb-[12px]">
       <div className="flex items-center justify-between space-x-1">
         <div className="flex items-center">
-          <h1 className="text-[2em] text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 pl-[3px]">
+          <h1 className="text-[2em] text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 pl-[3px] mr-1">
             {title}
           </h1>
-
           <button
-            className="hover:text-white transition duration-[50ms] text-disabled h-[32px] w-[32px]"
+            className="hover:text-white transition duration-[50ms] text-disabled text-[20px] mr-1"
             title="Toggle All"
             onClick={toggleDisableAll}
           >
@@ -172,7 +184,7 @@ export function ItemContainer({
           </button>
 
           <button
-            className="hover:text-white transition duration-[50ms] text-green h-[32px] w-[32px]"
+            className="hover:text-white transition duration-[50ms] text-green text-[20px] mr-1"
             title="Refresh Category"
             onClick={randomizeContainerItems}
           >
