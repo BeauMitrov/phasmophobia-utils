@@ -120,24 +120,39 @@ export function ItemContainer({
     });
   };
 
-  const adjustMaxCount = (adjustment: number) => {
+  const adjustCount = (action: "increment" | "decrement" | "max" | "min") => {
     const totalItems = items.length;
 
     const getAdjustedCount = (currentCount: number) => {
-      return adjustment > 0
-        ? Math.min(currentCount + 1, totalItems)
-        : Math.max(currentCount - 1, 0);
+      switch (action) {
+        case "increment":
+          return Math.min(currentCount + 1, totalItems);
+        case "decrement":
+          return Math.max(currentCount - 1, 0);
+        case "max":
+          return totalItems;
+        case "min":
+          return 0;
+        default:
+          return currentCount;
+      }
+    };
+
+    const adjustSetter = (
+      setter: React.Dispatch<React.SetStateAction<number>>
+    ) => {
+      setter((prevCount) => getAdjustedCount(prevCount));
     };
 
     switch (title) {
       case "Lights":
-        setMaxLight((prevCount) => getAdjustedCount(prevCount));
+        adjustSetter(setMaxLight);
         break;
       case "Main Equipment":
-        setMaxMain((prevCount) => getAdjustedCount(prevCount));
+        adjustSetter(setMaxMain);
         break;
       default:
-        setMaxOptional((prevCount) => getAdjustedCount(prevCount));
+        adjustSetter(setMaxOptional);
     }
   };
 
@@ -176,7 +191,7 @@ export function ItemContainer({
             {title}
           </h1>
           <button
-            className="hover:text-white transition duration-[50ms] text-disabled text-[20px] mr-1"
+            className="hover:text-white transition duration-[50ms] text-disabled text-[20px] mr-2"
             title="Toggle All"
             onClick={toggleDisableAll}
           >
@@ -184,7 +199,7 @@ export function ItemContainer({
           </button>
 
           <button
-            className="hover:text-white transition duration-[50ms] text-green text-[20px] mr-1"
+            className="hover:text-white transition duration-[50ms] text-green text-[20px] mr-2"
             title="Refresh Category"
             onClick={randomizeContainerItems}
           >
@@ -194,7 +209,14 @@ export function ItemContainer({
 
         <div className="flex items-center space-x-1  text-text-colour pr-[4px]">
           <button
-            onClick={() => adjustMaxCount(-1)}
+            onClick={() => adjustCount("min")}
+            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px] pr-[5px]"
+          >
+            <FontAwesomeIcon icon={faCaretLeft} className="mr-[-4px]" />
+            <FontAwesomeIcon icon={faCaretLeft} />
+          </button>
+          <button
+            onClick={() => adjustCount("decrement")}
             className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px]"
           >
             <FontAwesomeIcon icon={faCaretLeft} />
@@ -207,9 +229,16 @@ export function ItemContainer({
               : maxOptional}
           </span>
           <button
-            onClick={() => adjustMaxCount(1)}
+            onClick={() => adjustCount("increment")}
+            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px] pr-[5px]"
+          >
+            <FontAwesomeIcon icon={faCaretRight} />
+          </button>
+          <button
+            onClick={() => adjustCount("max")}
             className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px]"
           >
+            <FontAwesomeIcon icon={faCaretRight} className="mr-[-4px]" />
             <FontAwesomeIcon icon={faCaretRight} />
           </button>
         </div>

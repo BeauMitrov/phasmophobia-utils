@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ItemContainer } from "../components/containers/ItemContainer";
 import { Information } from "../components/containers/InteractionContainer";
-import { SettingsModal } from "../components/containers/SettingsModal";
+import { SettingsContainer } from "../components/containers/SettingsContainer";
 import {
   mainItems,
   lightItems,
@@ -24,10 +24,12 @@ export function Dashboard(): JSX.Element {
     setDisabledItems,
   } = useEquipmentSelection();
 
-  const [maxLight, setMaxLight] = useState<number>(1);
-  const [maxMain, setMaxMain] = useState<number>(4);
-  const [maxOptional, setMaxOptional] = useState<number>(4);
+  const [maxLight, setMaxLight] = useState<number>(3);
+  const [maxMain, setMaxMain] = useState<number>(7);
+  const [maxOptional, setMaxOptional] = useState<number>(10);
   const [itemTiers, setItemTiers] = useState<Record<string, number>>({});
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [modifiedItemData, setModifiedItemData] = useState(itemData);
 
   const equipmentConfigs = useMemo(
     () => [
@@ -37,9 +39,6 @@ export function Dashboard(): JSX.Element {
     ],
     []
   );
-
-  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
-  const [modifiedItemData, setModifiedItemData] = useState(itemData);
 
   const handleTierCycle = (
     e: React.MouseEvent,
@@ -112,7 +111,7 @@ export function Dashboard(): JSX.Element {
 
       {isSettingsVisible && (
         <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center bg-black/60 z-50">
-          <SettingsModal
+          <SettingsContainer
             isSettingsVisible={isSettingsVisible}
             onClose={() => setIsSettingsVisible(false)}
             itemData={modifiedItemData}

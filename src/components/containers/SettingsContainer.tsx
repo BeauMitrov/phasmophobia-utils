@@ -4,7 +4,7 @@ import { unlockLevels } from "../templates/LevelsTemplate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
-interface SettingsModalProps {
+interface SettingsContainerProps {
   isSettingsVisible: boolean;
   onClose: () => void;
   itemData: typeof itemData;
@@ -14,7 +14,9 @@ interface SettingsModalProps {
   >;
 }
 
-export function SettingsModal(props: SettingsModalProps): JSX.Element | null {
+export function SettingsContainer(
+  props: SettingsContainerProps
+): JSX.Element | null {
   const {
     isSettingsVisible,
     onClose,

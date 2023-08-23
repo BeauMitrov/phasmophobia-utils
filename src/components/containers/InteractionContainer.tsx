@@ -154,6 +154,12 @@ export function Information(props: InformationProps): JSX.Element {
         {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]">
             Placeholder
         </button> */}
+        <button
+          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
+          onClick={props.showSettingsModal}
+        >
+          Settings
+        </button>
         <div className="relative flex items-center">
           <label className="flex justify-center items-center relative w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto] cursor-pointer select-none">
             <span className="text-center">Linked Items</span>
@@ -176,12 +182,6 @@ export function Information(props: InformationProps): JSX.Element {
             </div>
           </label>
         </div>
-        <button
-          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
-          onClick={props.showSettingsModal}
-        >
-          Settings
-        </button>
         <button
           className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
           onClick={randomizedItems}

@@ -32,7 +32,7 @@ export function useEquipmentSelection(): EquipmentSelection {
     {}
   );
   const [linkedItems, setLinkedItems] = useState<Record<string, boolean>>({});
-  const [isLinkedItems, setisLinkedItems] = useState(true);
+  const [isLinkedItems, setisLinkedItems] = useState(false);
 
   const onItemChange = (item: Item, isChecked: boolean) => {
     setSelectedItems((prevSelectedItems) => {
