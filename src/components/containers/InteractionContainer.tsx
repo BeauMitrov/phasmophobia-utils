@@ -3,13 +3,21 @@ import { Item, itemData } from "../templates/ItemsTemplate";
 import { getRandomizedItems } from "../../utilities/randomizationLogic";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { DisabledInfo } from "../../utilities/useEquipmentSelection";
 
 interface InformationProps {
   items: Item[];
   selectedItems: Record<string, boolean>;
   itemTiers: Record<string, number>;
   onItemChange: (item: Item, isChecked: boolean) => void;
-  handleTierCycle: (e: React.MouseEvent, item: Item, reverse: boolean) => void;
+  handleTierCycle: (
+    e: React.MouseEvent,
+    item: Item,
+    reverse: boolean,
+    itemTiers: Record<string, number>,
+    setItemTiers: React.Dispatch<React.SetStateAction<Record<string, number>>>,
+    disabledItems: Record<string, DisabledInfo>
+  ) => void;
 
   maxLight: number;
   maxMain: number;
@@ -17,17 +25,13 @@ interface InformationProps {
   setMaxLight: React.Dispatch<React.SetStateAction<number>>;
   setMaxMain: React.Dispatch<React.SetStateAction<number>>;
   setMaxOptional: React.Dispatch<React.SetStateAction<number>>;
-  disabledItems: Record<string, boolean>;
+  disabledItems: Record<string, DisabledInfo>;
   setItemTiers: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   isLinkedItems: boolean;
   setisLinkedItems: (isDisabled: boolean) => void;
   updateLinkedItemsState: (isDisabled: boolean) => void;
   linkedItems: Record<string, boolean>;
-  handleItemDisable: (
-    item: Item,
-    isDisabled: boolean,
-    overrideLevelCheck: boolean
-  ) => void;
+  handleTierChange: (item: Item, tier: number, isDisabled: boolean) => void;
   showSettingsModal: () => void;
   modifiedItemData: typeof itemData;
 }
@@ -47,7 +51,7 @@ export function Information(props: InformationProps): JSX.Element {
     handleTierCycle,
     setisLinkedItems,
     updateLinkedItemsState,
-    handleItemDisable,
+    handleTierChange,
     linkedItems,
     modifiedItemData,
   } = props;
@@ -62,28 +66,30 @@ export function Information(props: InformationProps): JSX.Element {
 
   const randomizedItems = () => {
     const maxCounts = { light: maxLight, main: maxMain, optional: maxOptional };
+
     const randomizedResult = getRandomizedItems(
       modifiedItemData,
       maxCounts,
-      disabledItems,
-      isLinkedItems
+      disabledItems
     );
+
     const newTiers: Record<string, number> = {};
 
-    randomizedResult.forEach((rItem) => {
-      onItemChange(rItem.item, true);
-      newTiers[rItem.item.name] = rItem.tier;
+    const resetCategoryItems = (type: string) => {
+      items
+        .filter((item) => item.type === type)
+        .forEach((item) => onItemChange(item, false));
+    };
+
+    Object.keys(maxCounts).forEach((type) => {
+      if (groupedItems[type])
+        resetCategoryItems(type as keyof typeof maxCounts);
     });
 
-    modifiedItemData.forEach((item) => {
-      if (!randomizedResult.some((rItem) => rItem.item.name === item.name)) {
-        onItemChange(item, false);
-
-        const minTier = item.customMin || item.min;
-        const maxTier = item.customMax || item.max;
-
-        newTiers[item.name] =
-          Math.floor(Math.random() * (maxTier - minTier + 1)) + minTier;
+    randomizedResult.forEach((rItem) => {
+      if (rItem.tier !== null) {
+        onItemChange(rItem.item, true);
+        newTiers[rItem.item.name] = rItem.tier;
       }
     });
 
@@ -120,14 +126,16 @@ export function Information(props: InformationProps): JSX.Element {
                         onChange={(isChecked) => onItemChange(item, isChecked)}
                         label={item.name}
                         isLinked={linkedItems[item.name]}
-                        disabled={disabledItems[item.name]}
-                        onDisable={() =>
-                          handleItemDisable(
-                            item,
-                            !disabledItems[item.name],
-                            true
-                          )
-                        }
+                        disabled={disabledItems[item.name]?.itemDisabled}
+                        onDisable={() => {
+                          const allTiers = [1, 2, 3];
+                          const shouldDisable =
+                            !disabledItems[item.name]?.itemDisabled;
+
+                          allTiers.forEach((tier) => {
+                            handleTierChange(item, tier, shouldDisable);
+                          });
+                        }}
                       />
                     </div>
                     <div
@@ -138,8 +146,26 @@ export function Information(props: InformationProps): JSX.Element {
                           ? "text-enabled"
                           : "text-text-colour/20"
                       }`}
-                      onClick={(e) => handleTierCycle(e, item, false)}
-                      onContextMenu={(e) => handleTierCycle(e, item, true)}
+                      onClick={(e) =>
+                        handleTierCycle(
+                          e,
+                          item,
+                          false,
+                          itemTiers,
+                          setItemTiers,
+                          disabledItems
+                        )
+                      }
+                      onContextMenu={(e) =>
+                        handleTierCycle(
+                          e,
+                          item,
+                          true,
+                          itemTiers,
+                          setItemTiers,
+                          disabledItems
+                        )
+                      }
                     >
                       Tier {itemTiers[item.name] || 2}
                     </div>
@@ -150,7 +176,7 @@ export function Information(props: InformationProps): JSX.Element {
           </div>
         ))}
       </div>
-      <div className="flex flex-col space-y-2 mt-auto pb-[12px]">
+      <div className="flex flex-col space-y-2 mt-auto">
         {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]">
             Placeholder
         </button> */}

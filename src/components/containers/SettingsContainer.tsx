@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { itemData } from "../templates/ItemsTemplate";
-import { unlockLevels } from "../templates/LevelsTemplate";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { DisabledInfo } from "../../utilities/useEquipmentSelection";
+import { updateTiers } from "../../utilities/itemUtilities";
 
 interface SettingsContainerProps {
   isSettingsVisible: boolean;
   onClose: () => void;
   itemData: typeof itemData;
   setItemData: React.Dispatch<React.SetStateAction<typeof itemData>>;
+  disabledItems: Record<string, DisabledInfo>;
   setDisabledItems: React.Dispatch<
+    React.SetStateAction<Record<string, DisabledInfo>>
+  >;
+  setSelectedItems: React.Dispatch<
     React.SetStateAction<Record<string, boolean>>
   >;
 }
@@ -21,74 +26,16 @@ export function SettingsContainer(
     isSettingsVisible,
     onClose,
     itemData,
-    setItemData,
+    setSelectedItems,
     setDisabledItems,
+    // disabledItems,
   } = props;
 
   const [playerLevel, setPlayerLevel] = useState<number>(0);
 
-  const getUpdatedDisabledState = (level: number): Record<string, boolean> => {
-    const updatedDisabledState: Record<string, boolean> = {};
-    itemData.forEach((item) => {
-      const itemUnlockData = unlockLevels.find((u) => u.name === item.name);
-
-      updatedDisabledState[item.name] =
-        !!itemUnlockData &&
-        level < (itemUnlockData.unlocks[0]?.unlockLevel || Infinity);
-    });
-    return updatedDisabledState;
-  };
-
-  const getUpdatedData = (level: number) => {
-    return itemData.map((item) => {
-      const itemUnlockData = unlockLevels.find((u) => u.name === item.name);
-
-      if (!itemUnlockData) {
-        return {
-          ...item,
-          customMin: item.name === "Head Gear" ? 2 : 1,
-          customMax: 1,
-        };
-      }
-
-      const availableUnlocks = itemUnlockData.unlocks
-        .filter((unlock) => level >= unlock.unlockLevel)
-        .sort((a, b) => b.unlockTier - a.unlockTier);
-
-      const highestAvailableUnlock = availableUnlocks[0];
-
-      return highestAvailableUnlock
-        ? {
-            ...item,
-            customMin: item.name === "Head Gear" ? 2 : 1,
-            customMax: highestAvailableUnlock.unlockTier,
-          }
-        : {
-            ...item,
-            customMin: item.name === "Head Gear" ? 2 : 1,
-            customMax: 1,
-          };
-    });
-  };
-
-  const updateItemsBasedOnLevel = (level: number) => {
-    setDisabledItems(getUpdatedDisabledState(level));
-    setItemData(getUpdatedData(level));
-  };
-
   const handleLevelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const level = Number(e.target.value);
+    const level = Math.min(Number(e.target.value), 999);
     setPlayerLevel(level);
-  };
-
-  const handleInputChange = (
-    name: string,
-    key: "customMin" | "customMax",
-    value: number
-  ) => {
-    setItemData((prevData) =>
-      prevData.map((i) => (i.name === name ? { ...i, [key]: value } : i))
-    );
   };
 
   if (!isSettingsVisible) return null;
@@ -115,12 +62,26 @@ export function SettingsContainer(
                   type="number"
                   value={playerLevel}
                   onChange={handleLevelChange}
+                  onInput={(e) => {
+                    const value = parseInt(e.currentTarget.value, 10);
+                    if (value > 999) {
+                      e.currentTarget.value = "999";
+                      setPlayerLevel(999);
+                    }
+                  }}
                   min="0"
                   max="999"
                   className="p-2 border flex-grow bg-background-colour hover:border-enabled duration-[25ms] focus:ring-0 focus:border-enabled h-10"
                 />
                 <button
-                  onClick={() => updateItemsBasedOnLevel(playerLevel)}
+                  onClick={() =>
+                    updateTiers(
+                      itemData,
+                      playerLevel,
+                      setDisabledItems,
+                      setSelectedItems
+                    )
+                  }
                   className="pl-[64px] pr-[64px] ml-2 uppercase bg-text-colour text-background-colour hover:bg-enabled duration-[25ms] h-10"
                 >
                   Update
@@ -128,41 +89,32 @@ export function SettingsContainer(
               </div>
             </label>
           </div>
-          {itemData.map((item) => (
+          {/* {itemData.map((item) => (
             <div key={item.name} className="mb-4 mt-4">
               <h3 className="mb-2">{item.name}</h3>
               <div className="flex justify-between">
-                {(["customMin", "customMax"] as const).map((key) => (
-                  <div
-                    key={key}
-                    className={`w-1/2 ${key === "customMin" ? "pr-2" : "pl-2"}`}
-                  >
+                {[1, 2, 3].map((tier) => (
+                  <div key={tier}>
                     <label className="block mb-2 text-[16px]">
-                      {key === "customMin" ? "Min" : "Max"} Tier
+                      Tier {tier}
                     </label>
                     <input
-                      type="number"
-                      value={
-                        key === "customMin"
-                          ? item.customMin || item.min
-                          : item.customMax || item.max
-                      }
-                      onChange={(e) =>
-                        handleInputChange(
+                      type="checkbox"
+                      checked={!disabledItems[item.name]?.tierDisabled?.[tier]}
+                      onChange={() =>
+                        handleTierToggle(
                           item.name,
-                          key,
-                          Number(e.target.value)
+                          tier,
+                          disabledItems,
+                          setDisabledItems
                         )
                       }
-                      min="1"
-                      max="3"
-                      className="p-2 border w-full bg-background-colour hover:border-enabled duration-[25ms] focus:ring-0 focus:border-enabled"
                     />
                   </div>
                 ))}
               </div>
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
     </div>

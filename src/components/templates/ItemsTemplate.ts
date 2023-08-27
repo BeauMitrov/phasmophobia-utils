@@ -2,8 +2,8 @@ export interface Item {
   name: string;
   type: "main" | "optional" | "light";
   images: {
-    Tier1: string;
-    Tier2: string;
+    Tier1?: string;
+    Tier2?: string;
     Tier3?: string;
   };
   min: number;
@@ -27,17 +27,6 @@ export const itemData: Item[] = [
     max: 3,
   },
   {
-    name: "Head Gear",
-    type: "light",
-    images: {
-      Tier1: "/phasmophobia-utils/assets/images/light/HeadGear1.png",
-      Tier2: "/phasmophobia-utils/assets/images/light/HeadGear2.png",
-      Tier3: "/phasmophobia-utils/assets/images/light/HeadGear3.png",
-    },
-    min: 2,
-    max: 3,
-  },
-  {
     name: "Firelight",
     type: "light",
     images: {
@@ -48,6 +37,17 @@ export const itemData: Item[] = [
     min: 1,
     max: 3,
     linked: ["Igniter"],
+  },
+  {
+    name: "Head Gear",
+    type: "light",
+    images: {
+      Tier1: "/phasmophobia-utils/assets/images/light/HeadGear1.png",
+      Tier2: "/phasmophobia-utils/assets/images/light/HeadGear2.png",
+      Tier3: "/phasmophobia-utils/assets/images/light/HeadGear3.png",
+    },
+    min: 2,
+    max: 3,
   },
 
   // Main Items
@@ -246,9 +246,3 @@ export const itemData: Item[] = [
     max: 3,
   },
 ];
-
-export const mainItems = itemData.filter((item) => item.type === "main");
-export const optionalItems = itemData.filter(
-  (item) => item.type === "optional"
-);
-export const lightItems = itemData.filter((item) => item.type === "light");

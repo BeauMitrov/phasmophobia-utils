@@ -2,14 +2,14 @@ import React, { useState, useMemo } from "react";
 import { ItemContainer } from "../components/containers/ItemContainer";
 import { Information } from "../components/containers/InteractionContainer";
 import { SettingsContainer } from "../components/containers/SettingsContainer";
+import { itemData } from "../components/templates/ItemsTemplate";
 import {
-  mainItems,
-  lightItems,
-  optionalItems,
-  Item,
-  itemData,
-} from "../components/templates/ItemsTemplate";
+  getLightItems,
+  getMainItems,
+  getOptionalItems,
+} from "../utilities/itemFilter";
 import { useEquipmentSelection } from "../utilities/useEquipmentSelection";
+import { handleTierCycle } from "../utilities/handleTierCycle";
 
 export function Dashboard(): JSX.Element {
   const {
@@ -18,47 +18,29 @@ export function Dashboard(): JSX.Element {
     linkedItems,
     isLinkedItems,
     onItemChange,
-    handleItemDisable,
+    handleTierChange,
     setisLinkedItems,
     updateLinkedItemsState,
     setDisabledItems,
+    setSelectedItems,
+    itemTiers,
+    setItemTiers,
   } = useEquipmentSelection();
 
   const [maxLight, setMaxLight] = useState<number>(3);
   const [maxMain, setMaxMain] = useState<number>(7);
   const [maxOptional, setMaxOptional] = useState<number>(10);
-  const [itemTiers, setItemTiers] = useState<Record<string, number>>({});
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [modifiedItemData, setModifiedItemData] = useState(itemData);
 
   const equipmentConfigs = useMemo(
     () => [
-      { title: "Lights", items: lightItems },
-      { title: "Main Equipment", items: mainItems },
-      { title: "Optional Equipment", items: optionalItems },
+      { title: "Lights Equipment", items: getLightItems() },
+      { title: "Evidence Equipment", items: getMainItems() },
+      { title: "Optional Equipment", items: getOptionalItems() },
     ],
     []
   );
-
-  const handleTierCycle = (
-    e: React.MouseEvent,
-    item: Item,
-    reverse: boolean = false
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setItemTiers((prevTiers) => {
-      const currentTier = prevTiers[item.name] || 2;
-      const newTier = reverse
-        ? currentTier === 1
-          ? 3
-          : currentTier - 1
-        : currentTier === 3
-        ? 1
-        : currentTier + 1;
-      return { ...prevTiers, [item.name]: newTier };
-    });
-  };
 
   const commonProps = {
     selectedItems,
@@ -75,15 +57,15 @@ export function Dashboard(): JSX.Element {
     setMaxMain,
     setMaxOptional,
     handleTierCycle,
-    handleItemDisable,
+    handleTierChange,
   };
 
   return (
-    <div className="grid grid-cols-[1fr,auto] grid-rows-[auto,1fr] max-h-[100%] max-w-[1800px] m-auto">
-      <div className="relative h-[100%] w-[100%] bg-text-colour col-start-1 row-start-1 row-span-1 overflow-auto">
+    <div className="grid grid-cols-[1fr,400px] grid-rows-[auto,1fr] h-full m-auto max-w-[3000px] pb-[16px]">
+      <div className="relative overflow-auto">
         {equipmentConfigs.map(({ title, items }) => (
           <div
-            className="bg-background-colour m-[2px] pl-[12px] pr-[12px]"
+            className="bg-background-colour pb-[24px] last-of-type:pb-0 m-[2px] pl-[12px] pr-[12px]"
             key={title}
           >
             <ItemContainer
@@ -96,8 +78,8 @@ export function Dashboard(): JSX.Element {
         ))}
       </div>
 
-      <div className="flex flex-col w-[400px] h-full bg-background-colour border-text-colour border-[2px] col-start-2 row-start-1 ml-[-2px]">
-        <div className="flex-grow overflow-auto m-[2px] pl-[12px] pr-[12px] bg-background-colour p-[2px]">
+      <div className="flex flex-col bg-background-colour">
+        <div className="flex-grow overflow-auto pl-[12px] pr-[12px] bg-background-colour">
           <Information
             items={itemData}
             modifiedItemData={modifiedItemData}
@@ -117,6 +99,8 @@ export function Dashboard(): JSX.Element {
             itemData={modifiedItemData}
             setItemData={setModifiedItemData}
             setDisabledItems={setDisabledItems}
+            disabledItems={disabledItems}
+            setSelectedItems={setSelectedItems}
           />
         </div>
       )}

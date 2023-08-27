@@ -6,25 +6,21 @@ import {
   faCaretRight,
   faCaretLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { Checkbox } from "../Checkbox";
 import { getRandomizedItems } from "../../utilities/randomizationLogic";
-import { toRoman, formatImageName } from "../../utilities/ItemUtilities";
-import { useEffect, useState } from "react";
-import { Tooltip } from "../Tooltip";
+import {
+  formatImageName,
+  toggleDisableAll,
+} from "../../utilities/itemUtilities";
+import { DisabledInfo } from "../../utilities/useEquipmentSelection";
 
 interface ItemContainerProps {
   title: string;
   items: Item[];
   selectedItems: Record<string, boolean>;
-  disabledItems: Record<string, boolean>;
+  disabledItems: Record<string, DisabledInfo>;
   linkedItems: Record<string, boolean>;
   isLinkedItems: boolean;
   onItemChange: (item: Item, isChecked: boolean) => void;
-  handleItemDisable: (
-    item: Item,
-    isDisabled: boolean,
-    overrideLevelCheck: boolean
-  ) => void;
   maxLight: number;
   maxMain: number;
   maxOptional: number;
@@ -33,7 +29,7 @@ interface ItemContainerProps {
   setMaxLight: React.Dispatch<React.SetStateAction<number>>;
   setMaxMain: React.Dispatch<React.SetStateAction<number>>;
   setMaxOptional: React.Dispatch<React.SetStateAction<number>>;
-  handleTierCycle: (e: React.MouseEvent, item: Item, reverse: boolean) => void;
+  handleTierChange: (item: Item, tier: number, isDisabled: boolean) => void;
   modifiedItemData: typeof itemData;
 }
 
@@ -44,36 +40,67 @@ export function ItemContainer({
   disabledItems,
   linkedItems,
   onItemChange,
-  handleItemDisable,
   isLinkedItems,
   maxLight,
   maxMain,
   maxOptional,
-  setItemTiers,
-  itemTiers,
   setMaxLight,
   setMaxMain,
   setMaxOptional,
-  handleTierCycle,
+  itemTiers,
+  setItemTiers,
   modifiedItemData,
+  handleTierChange,
 }: ItemContainerProps): JSX.Element {
-  const handleRightClick = (item: Item, e: React.MouseEvent) => {
-    e.preventDefault();
-    handleItemDisable(item, !disabledItems[item.name], true);
+  function isLinkedItemEnabled(
+    item: Item,
+    tier: number,
+    linkedItems: Record<string, boolean>,
+    disabledItems: Record<string, DisabledInfo>
+  ): boolean {
+    return (
+      !!linkedItems[item.name] &&
+      itemTiers[item.name] === tier &&
+      (!disabledItems[item.name] || !disabledItems[item.name].itemDisabled)
+    );
+  }
+
+  const getAvailableTiers = (item: Item): number[] => {
+    const modifiedItem =
+      modifiedItemData.find((mItem) => mItem.name === item.name) || item;
+    const minTier = modifiedItem.customMin || modifiedItem.min;
+    const maxTier = modifiedItem.customMax || modifiedItem.max;
+
+    const potentialTiers = Array.from(
+      { length: maxTier - minTier + 1 },
+      (_, i) => minTier + i
+    );
+
+    const availableTiers = potentialTiers.filter(
+      (tier) => !disabledItems[item.name]?.tierDisabled[tier]
+    );
+
+    return availableTiers;
   };
 
-  const toggleDisableAll = () => {
-    const allDisabled = items.every((item) => disabledItems[item.name]);
-    items.forEach((item) => handleItemDisable(item, !allDisabled, true));
+  const formatAvailableTiers = (availableTiers: number[]): string => {
+    if (availableTiers.length === 0) return "None Available";
+
+    if (availableTiers.length === 3) return "All Tiers Available";
+
+    if (availableTiers.length === 1)
+      return `Only Tier ${availableTiers[0]} Available`;
+
+    return `Tiers ${availableTiers.join(" & ")} Available`;
   };
 
   const randomizeContainerItems = () => {
     let maxCount: number;
     switch (title) {
-      case "Lights":
+      case "Lights Equipment":
         maxCount = maxLight;
         break;
-      case "Main Equipment":
+      case "Evidence Equipment":
         maxCount = maxMain;
         break;
       default:
@@ -81,16 +108,18 @@ export function ItemContainer({
     }
 
     const maxCounts = {
-      light: title === "Lights" ? maxCount : 0,
-      main: title === "Main Equipment" ? maxCount : 0,
-      optional: title !== "Lights" && title !== "Main Equipment" ? maxCount : 0,
+      light: title === "Lights Equipment" ? maxCount : 0,
+      main: title === "Evidence Equipment" ? maxCount : 0,
+      optional:
+        title !== "Lights Equipment" && title !== "Evidence Equipment"
+          ? maxCount
+          : 0,
     };
 
     const randomizedResult = getRandomizedItems(
       items,
       maxCounts,
-      disabledItems,
-      isLinkedItems
+      disabledItems
     );
 
     const newTiers: Record<string, number> = {};
@@ -101,23 +130,22 @@ export function ItemContainer({
     });
 
     items.forEach((item) => {
-      const modifiedItem =
-        modifiedItemData.find((mItem) => mItem.name === item.name) || item;
+      const existsInRandomizedResult = randomizedResult.some(
+        (rItem) => rItem.item.name === item.name && rItem.tier !== null
+      );
 
-      const minTier = modifiedItem.customMin || modifiedItem.min;
-      const maxTier = modifiedItem.customMax || modifiedItem.max;
-
-      newTiers[item.name] =
-        Math.floor(Math.random() * (maxTier - minTier + 1)) + minTier;
+      if (!existsInRandomizedResult) {
+        onItemChange(item, false);
+        const availableTiers = getAvailableTiers(item);
+        if (availableTiers.length) {
+          const randomTier =
+            availableTiers[Math.floor(Math.random() * availableTiers.length)];
+          newTiers[item.name] = randomTier;
+        }
+      }
     });
 
     setItemTiers((prevTiers) => ({ ...prevTiers, ...newTiers }));
-
-    items.forEach((item) => {
-      if (!randomizedResult.some((rItem) => rItem.item.name === item.name)) {
-        onItemChange(item, false);
-      }
-    });
   };
 
   const adjustCount = (action: "increment" | "decrement" | "max" | "min") => {
@@ -145,10 +173,10 @@ export function ItemContainer({
     };
 
     switch (title) {
-      case "Lights":
+      case "Lights Equipment":
         adjustSetter(setMaxLight);
         break;
-      case "Main Equipment":
+      case "Evidence Equipment":
         adjustSetter(setMaxMain);
         break;
       default:
@@ -156,44 +184,30 @@ export function ItemContainer({
     }
   };
 
-  const getBorderColor = (itemName: string): string => {
-    if (disabledItems[itemName]) return "text-disabled";
+  const getBorderColor = (itemName: string, tier: number): string => {
+    if (disabledItems[itemName]?.itemDisabled) return "text-disabled";
+    if (disabledItems[itemName]?.tierDisabled?.[tier]) return "text-disabled";
+    if (linkedItems[itemName] && selectedItems[itemName])
+      return "border-enabled";
     if (linkedItems[itemName]) return "border-text-colour";
     if (selectedItems[itemName]) return "border-enabled";
     return "border-border-colour";
   };
 
-  const [visibleTooltip, setVisibleTooltip] = useState<string | null>(null);
-  const [numColumns, setNumColumns] = useState(6);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const containerWidth = document.querySelector(".cells")?.clientWidth || 0;
-      const itemWidth = 190;
-      const calculatedColumns = Math.floor(containerWidth / itemWidth);
-      setNumColumns(calculatedColumns);
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const lastRowItemCount = items.length % numColumns;
-  const blankCells = lastRowItemCount > 0 ? numColumns - lastRowItemCount : 0;
-
   return (
-    <div className="equipment-content pb-[12px]">
+    <div className="equipment-content">
       <div className="flex items-center justify-between space-x-1">
         <div className="flex items-center">
-          <h1 className="text-[2em] text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 pl-[3px] mr-1">
+          <h1 className="text-[2em] text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 pl-[3px] mr-1 pb-[6px]">
             {title}
           </h1>
           <button
-            className="hover:text-white transition duration-[50ms] text-disabled text-[20px] mr-2"
+            className="hover:text-white transition duration-[50ms] text-[#ff2424] text-[20px] mr-2"
             title="Toggle All"
-            onClick={toggleDisableAll}
+            onClick={(e) => {
+              e.preventDefault();
+              toggleDisableAll(items, disabledItems, handleTierChange);
+            }}
           >
             <FontAwesomeIcon className="text-[24px]" icon={faBan} />
           </button>
@@ -207,7 +221,7 @@ export function ItemContainer({
           </button>
         </div>
 
-        <div className="flex items-center space-x-1  text-text-colour pr-[4px]">
+        <div className="flex items-center space-x-1 text-text-colour pr-[4px]">
           <button
             onClick={() => adjustCount("min")}
             className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px] pr-[5px]"
@@ -222,9 +236,9 @@ export function ItemContainer({
             <FontAwesomeIcon icon={faCaretLeft} />
           </button>
           <span className="font-bold font-[Roboto] text-[1.75em] w-[32px] text-center inline-block">
-            {title === "Lights"
+            {title === "Lights Equipment"
               ? maxLight
-              : title === "Main Equipment"
+              : title === "Evidence Equipment"
               ? maxMain
               : maxOptional}
           </span>
@@ -243,82 +257,114 @@ export function ItemContainer({
           </button>
         </div>
       </div>
-      <div className="cells grid gap-[12px] place-items-center pb-[11px]">
-        {" "}
+
+      <div className="grid gap-[12px]">
         {items.map((item, index) => (
-          <label
+          <div
             key={index}
-            className={`label-hover relative border-4 flex-shrink w-[178px] aspect-square ${getBorderColor(
-              item.name
-            )} flex items-center justify-center transition-border-color duration-[25ms] ease-in-out`}
-            onMouseEnter={() => setVisibleTooltip(item.name)}
-            onMouseLeave={() => setVisibleTooltip(null)}
-            onContextMenu={(e) => handleRightClick(item, e)}
+            className={`grid grid-cols-4 items-center gap-[4px]`}
           >
-            <Checkbox
-              isChecked={selectedItems[item.name]}
-              onChange={(isChecked) => onItemChange(item, isChecked)}
-              disabled={disabledItems[item.name]}
-            />
+            {/* Item Name */}
             <div
-              className="absolute inset-0 z-10 bg-cell-colour bg-repeat"
-              style={{
-                backgroundImage: `linear-gradient(rgba(46, 53, 53, 0.5) 10%, transparent 1px),
-                                    linear-gradient(90deg, rgba(46, 53, 53, 0.5) 10%, transparent 1px),
-                                    linear-gradient(rgba(46, 53, 53, 0.28) 10%, transparent 1px),
-                                    linear-gradient(90deg, rgba(46, 53, 53, 0.28) 10%, transparent 1px)`,
-                backgroundSize: `10% 10%`,
-                backgroundPosition: "-1.5px -1.5px",
+              className="w-full h-full bg-text-colour cursor-pointer"
+              onClick={() => {
+                onItemChange(item, !selectedItems[item.name]);
               }}
-            />
-            <Tooltip
-              content={item.name}
-              isVisible={visibleTooltip === item.name}
-            />{" "}
-            {[1, 2, 3].map((tier) => (
-              <img
-                key={`${item.name}${tier}`}
-                src={`/phasmophobia-utils/assets/images/${
-                  item.type
-                }/${formatImageName(item.name)}${tier}.png`}
-                alt={item.name}
-                className={`scale-image absolute z-20 object-cover w-[90%] h-[90%] transform transition-transform duration-[50ms] ${
-                  tier !== (itemTiers[item.name] || 2) && "hidden"
-                }`}
-                draggable="false"
-              />
-            ))}{" "}
-            <div className="flex flex-col absolute top-0 left-0 m-1 space-y-1">
-              <div className="flex items-center">
-                {" "}
-                {[1, 2, 3].map((tier) => (
-                  <img
-                    key={tier}
-                    src={`/phasmophobia-utils/assets/images/tiers/Tier${tier}.png`}
-                    alt={`Tier ${tier}`}
-                    className={`w-[24px] h-[24px] z-30 ${
-                      tier !== (itemTiers[item.name] || 2) && "hidden"
-                    }`}
-                    onClick={(e) => handleTierCycle(e, item, false)}
-                    onContextMenu={(e) => handleTierCycle(e, item, true)}
-                  />
-                ))}{" "}
-                <div className="text-white font-[Roboto] font-bold rounded-[0.25vw] z-30 flex items-center justify-center h-[32px] w-auto ml-2">
-                  {" "}
-                  {`TIER ${toRoman(itemTiers[item.name])}`}{" "}
+              onContextMenu={(e) => {
+                e.preventDefault();
+
+                const allTiersDisabled = [1, 2, 3].every(
+                  (tier) => disabledItems[item.name]?.tierDisabled?.[tier]
+                );
+
+                [1, 2, 3].forEach((tier) => {
+                  handleTierChange(item, tier, !allTiersDisabled);
+                });
+              }}
+            >
+              <div className="h-full w-full">
+                <div
+                  className={`font-[Roboto] uppercase p-[0.5vw] w-full h-full select-none ${getBorderColor(
+                    item.name,
+                    itemTiers[item.name]
+                  )} ${
+                    selectedItems[item.name] ? "bg-enabled" : "bg-text-colour"
+                  }`}
+                >
+                  <div className="text-[1.25vw] font-semibold">{item.name}</div>
+                  <div className="text-[1vw] font-medium">
+                    {formatAvailableTiers(getAvailableTiers(item))}
+                  </div>
                 </div>
               </div>
-              {/* <button onClick={()=> onItemDisable(item, !disabledItems[item.name])} title="Toggle Disable" className="bg-border-colour/60 font-semibold rounded-[0.25vw] z-30 flex items-center justify-center h-[32px] w-[32px]">
-                <FontAwesomeIcon icon={faBan} className={` hover:text-white transition duration-[50ms] text-[22px] ${disabledItems[item.name] ? 'text-disabled' : 'text-text-colour' }`} />
-              </button> */}
             </div>
-          </label>
-        ))}
-        {Array.from({ length: blankCells }).map((_, index) => (
-          <div
-            key={`blank-${index}`}
-            className="label-hover relative border-4 flex-shrink w-[178px] aspect-square bg-cell-colour border-cell-colour flex items-center justify-center transition-border-color duration-[25ms] ease-in-out opacity-100"
-          ></div>
+
+            {/* Tiers */}
+            {[1, 2, 3].map((tier) => (
+              <div
+                key={tier}
+                onClick={() => {
+                  if (!disabledItems[item.name]?.tierDisabled?.[tier]) {
+                    const isSelected =
+                      selectedItems[item.name] && itemTiers[item.name] === tier;
+                    onItemChange(item, !isSelected);
+                    setItemTiers({ ...itemTiers, [item.name]: tier });
+                  }
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  handleTierChange(
+                    item,
+                    tier,
+                    !disabledItems[item.name]?.tierDisabled?.[tier]
+                  );
+                }}
+                className={`relative flex justify-center items-center p-2 cursor-pointer transition-opacity duration-[25ms] border-[4px] ${getBorderColor(
+                  item.name,
+                  tier
+                )} ${
+                  (selectedItems[item.name] && itemTiers[item.name] === tier) ||
+                  isLinkedItemEnabled(item, tier, linkedItems, disabledItems)
+                    ? "opacity-100"
+                    : "opacity-30"
+                }`}
+              >
+                {disabledItems[item.name]?.tierDisabled?.[tier] && (
+                  <div
+                    className={`absolute inset-0 flex justify-center items-center bg-[#020202]/80 z-[11] 
+  ${disabledItems[item.name]?.tierDisabled?.[tier] ? "" : "hidden"}`}
+                  >
+                    <img
+                      src="/phasmophobia-utils/assets/images/tiers/Lock.png"
+                      alt="Locked"
+                      className="z-12 w-[20%]"
+                    />
+                  </div>
+                )}
+                <div
+                  className="absolute inset-0 z-0 bg-cell-colour bg-repeat"
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(46, 53, 53, 0.5) 10%, transparent 1px), linear-gradient(90deg, rgba(46, 53, 53, 0.5) 10%, transparent 1px), linear-gradient(rgba(46, 53, 53, 0.28) 10%, transparent 1px), linear-gradient(90deg, rgba(46, 53, 53, 0.28) 10%, transparent 1px)`,
+                    backgroundSize: "4.75% 10%",
+                    backgroundPosition: "-0.5px -0.5px",
+                  }}
+                ></div>
+                <img
+                  src={`/phasmophobia-utils/assets/images/${
+                    item.type
+                  }/${formatImageName(item.name)}${tier}.png`}
+                  alt={item.name}
+                  className="z-9 object-cover w-[40%] ease-in-out transform scale-100 hover:scale-110 duration-[100ms] select-none"
+                  draggable="false"
+                />
+                <img
+                  src={`/phasmophobia-utils/assets/images/tiers/Tier${tier}.png`}
+                  alt={`Tier ${tier}`}
+                  className={`absolute top-1 right-1 w-[6.75%] h-[16%] z-10 mr-1 mt-1 select-none`}
+                />
+              </div>
+            ))}
+          </div>
         ))}
       </div>
     </div>

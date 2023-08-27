@@ -20,7 +20,7 @@ export const unlockLevels: ItemUnlockData[] = [
   {
     name: "Head Gear",
     unlocks: [
-      // { unlockLevel: 13, unlockTier: 1 },
+      { unlockLevel: 1000, unlockTier: 1 },
       { unlockLevel: 49, unlockTier: 2 },
       { unlockLevel: 82, unlockTier: 3 },
     ],
