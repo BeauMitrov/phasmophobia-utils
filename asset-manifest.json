@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/phasmophobia-utils/static/css/main.bdbddafa.css",
-    "main.js": "/phasmophobia-utils/static/js/main.29b5d807.js",
+    "main.css": "/phasmophobia-utils/static/css/main.1c0a5a36.css",
+    "main.js": "/phasmophobia-utils/static/js/main.8f9b3f26.js",
     "index.html": "/phasmophobia-utils/index.html",
-    "main.bdbddafa.css.map": "/phasmophobia-utils/static/css/main.bdbddafa.css.map",
-    "main.29b5d807.js.map": "/phasmophobia-utils/static/js/main.29b5d807.js.map"
+    "main.1c0a5a36.css.map": "/phasmophobia-utils/static/css/main.1c0a5a36.css.map",
+    "main.8f9b3f26.js.map": "/phasmophobia-utils/static/js/main.8f9b3f26.js.map"
   },
   "entrypoints": [
-    "static/css/main.bdbddafa.css",
-    "static/js/main.29b5d807.js"
+    "static/css/main.1c0a5a36.css",
+    "static/js/main.8f9b3f26.js"
   ]
 }
