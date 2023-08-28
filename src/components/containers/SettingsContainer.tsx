@@ -42,9 +42,9 @@ export function SettingsContainer(
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="absolute w-[600px] h-[600px] bg-background-colour z-50 flex flex-col border-text-colour border-2">
+      <div className="absolute w-[25vw] h-[50vh] bg-background-colour z-50 flex flex-col border-text-colour border-2">
         <div className="p-4 text-text-colour uppercase bg-background-colour font-[Roboto] font-semibold flex items-center justify-between border-b-2">
-          <h2 className="text-[1.5em]">Settings - Temporary UI</h2>
+          <h2 className="text-2xl">Settings - Temporary UI</h2>
           <button
             onClick={onClose}
             aria-label="Close Settings"
@@ -53,7 +53,7 @@ export function SettingsContainer(
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
-        <div className="p-4 overflow-auto flex-grow text-text-colour uppercase font-[Roboto] font-semibold text-[1.25em]">
+        <div className="p-4 overflow-auto flex-grow text-text-colour uppercase font-[Roboto] font-semibold text-xl">
           <div className="mb-2 mt-2">
             <label className="block">
               Player Level
@@ -82,39 +82,13 @@ export function SettingsContainer(
                       setSelectedItems
                     )
                   }
-                  className="pl-[64px] pr-[64px] ml-2 uppercase bg-text-colour text-background-colour hover:bg-enabled duration-[25ms] h-10"
+                  className="pl-10 pr-10 ml-2 uppercase bg-text-colour text-background-colour hover:bg-enabled duration-[25ms] h-10"
                 >
                   Update
                 </button>
               </div>
             </label>
           </div>
-          {/* {itemData.map((item) => (
-            <div key={item.name} className="mb-4 mt-4">
-              <h3 className="mb-2">{item.name}</h3>
-              <div className="flex justify-between">
-                {[1, 2, 3].map((tier) => (
-                  <div key={tier}>
-                    <label className="block mb-2 text-[16px]">
-                      Tier {tier}
-                    </label>
-                    <input
-                      type="checkbox"
-                      checked={!disabledItems[item.name]?.tierDisabled?.[tier]}
-                      onChange={() =>
-                        handleTierToggle(
-                          item.name,
-                          tier,
-                          disabledItems,
-                          setDisabledItems
-                        )
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))} */}
         </div>
       </div>
     </div>

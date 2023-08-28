@@ -14,7 +14,24 @@ module.exports = {
       white: "#fff",
       green: "#36e517",
     },
-    extend: {},
+    extend: {
+      animation: {
+        swingIn: "swingIn 0.5s forwards",
+        swingOut: "swingOut 0.5s forwards",
+      },
+      keyframes: {
+        swingIn: {
+          "0%": {
+            transform: "translateY(100%)",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "translateY(25%)",
+            opacity: "1",
+          },
+        },
+      },
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };

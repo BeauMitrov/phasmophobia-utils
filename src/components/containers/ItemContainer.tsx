@@ -197,45 +197,45 @@ export function ItemContainer({
   return (
     <div className="equipment-content">
       <div className="flex items-center justify-between space-x-1">
-        <div className="flex items-center">
-          <h1 className="text-[2em] text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 pl-[3px] mr-1 pb-[6px]">
+        <div className="flex items-center mb-1">
+          <h1 className="text-4xl text-left uppercase font-bold text-text-colour font-[Roboto] pr-1 mr-1">
             {title}
           </h1>
           <button
-            className="hover:text-white transition duration-[50ms] text-[#ff2424] text-[20px] mr-2"
+            className="hover:text-white transition duration-[50ms] text-[#ff2424] text-3xl mr-2 flex items-center"
             title="Toggle All"
             onClick={(e) => {
               e.preventDefault();
               toggleDisableAll(items, disabledItems, handleTierChange);
             }}
           >
-            <FontAwesomeIcon className="text-[24px]" icon={faBan} />
+            <FontAwesomeIcon className="text-3xl" icon={faBan} />
           </button>
 
           <button
-            className="hover:text-white transition duration-[50ms] text-green text-[20px] mr-2"
+            className="hover:text-white transition duration-[50ms] text-green text-3xl mr-2 flex items-center"
             title="Refresh Category"
             onClick={randomizeContainerItems}
           >
-            <FontAwesomeIcon className="text-[24px]" icon={faRotateRight} />
+            <FontAwesomeIcon className="text-3xl" icon={faRotateRight} />
           </button>
         </div>
 
-        <div className="flex items-center space-x-1 text-text-colour pr-[4px]">
+        <div className="flex items-center space-x-1 text-text-colour pr-1">
           <button
             onClick={() => adjustCount("min")}
-            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px] pr-[5px]"
+            className="hover:text-white transition duration-[50ms] text-3xl"
           >
             <FontAwesomeIcon icon={faCaretLeft} className="mr-[-4px]" />
             <FontAwesomeIcon icon={faCaretLeft} />
           </button>
           <button
             onClick={() => adjustCount("decrement")}
-            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px]"
+            className="hover:text-white transition duration-[50ms] text-3xl"
           >
             <FontAwesomeIcon icon={faCaretLeft} />
           </button>
-          <span className="font-bold font-[Roboto] text-[1.75em] w-[32px] text-center inline-block">
+          <span className="font-bold font-[Roboto] text-3xl w-[32px] text-center inline-block">
             {title === "Lights Equipment"
               ? maxLight
               : title === "Evidence Equipment"
@@ -244,13 +244,13 @@ export function ItemContainer({
           </span>
           <button
             onClick={() => adjustCount("increment")}
-            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px] pr-[5px]"
+            className="hover:text-white transition duration-[50ms] text-3xl"
           >
             <FontAwesomeIcon icon={faCaretRight} />
           </button>
           <button
             onClick={() => adjustCount("max")}
-            className="hover:text-white transition duration-[50ms] text-[1.75em] mb-[1px]"
+            className="hover:text-white transition duration-[50ms] text-3xl"
           >
             <FontAwesomeIcon icon={faCaretRight} className="mr-[-4px]" />
             <FontAwesomeIcon icon={faCaretRight} />
@@ -258,12 +258,9 @@ export function ItemContainer({
         </div>
       </div>
 
-      <div className="grid gap-[12px]">
+      <div className="grid gap-2">
         {items.map((item, index) => (
-          <div
-            key={index}
-            className={`grid grid-cols-4 items-center gap-[4px]`}
-          >
+          <div key={index} className={`grid grid-cols-4 items-center gap-1`}>
             {/* Item Name */}
             <div
               className="w-full h-full bg-text-colour cursor-pointer"
@@ -284,7 +281,7 @@ export function ItemContainer({
             >
               <div className="h-full w-full">
                 <div
-                  className={`font-[Roboto] uppercase p-[0.5vw] w-full h-full select-none ${getBorderColor(
+                  className={`font-[Roboto] uppercase p-[0.5vw] w-full h-full select-none overflow-hidden hover:bg-enabled ${getBorderColor(
                     item.name,
                     itemTiers[item.name]
                   )} ${
@@ -319,16 +316,24 @@ export function ItemContainer({
                     !disabledItems[item.name]?.tierDisabled?.[tier]
                   );
                 }}
-                className={`relative flex justify-center items-center p-2 cursor-pointer transition-opacity duration-[25ms] border-[4px] ${getBorderColor(
+                className={`relative flex justify-center items-center p-2 cursor-pointer border-4 ${getBorderColor(
                   item.name,
                   tier
                 )} ${
                   (selectedItems[item.name] && itemTiers[item.name] === tier) ||
                   isLinkedItemEnabled(item, tier, linkedItems, disabledItems)
                     ? "opacity-100"
-                    : "opacity-30"
+                    : "opacity-[35%]"
                 }`}
               >
+                {item.name === "Head Gear" &&
+                  tier === 1 &&
+                  disabledItems[item.name]?.tierDisabled?.[1] && (
+                    <div className="absolute bottom-[10%] left-0 w-full flex justify-center items-center z-[15] font-[Roboto] uppercase font-medium text-white text-[0.75vw]">
+                      Disabled By Default
+                    </div>
+                  )}
+
                 {disabledItems[item.name]?.tierDisabled?.[tier] && (
                   <div
                     className={`absolute inset-0 flex justify-center items-center bg-[#020202]/80 z-[11] 
@@ -337,7 +342,7 @@ export function ItemContainer({
                     <img
                       src="/phasmophobia-utils/assets/images/tiers/Lock.png"
                       alt="Locked"
-                      className="z-12 w-[20%]"
+                      className="z-12 w-1/5"
                     />
                   </div>
                 )}
@@ -360,7 +365,7 @@ export function ItemContainer({
                 <img
                   src={`/phasmophobia-utils/assets/images/tiers/Tier${tier}.png`}
                   alt={`Tier ${tier}`}
-                  className={`absolute top-1 right-1 w-[6.75%] h-[16%] z-10 mr-1 mt-1 select-none`}
+                  className={`absolute top-1 right-1 w-[7%] z-10 mr-1 mt-1 select-none`}
                 />
               </div>
             ))}

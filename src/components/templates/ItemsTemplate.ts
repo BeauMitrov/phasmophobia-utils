@@ -46,7 +46,7 @@ export const itemData: Item[] = [
       Tier2: "/phasmophobia-utils/assets/images/light/HeadGear2.png",
       Tier3: "/phasmophobia-utils/assets/images/light/HeadGear3.png",
     },
-    min: 2,
+    min: 1,
     max: 3,
   },
 

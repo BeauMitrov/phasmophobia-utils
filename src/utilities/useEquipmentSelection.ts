@@ -28,9 +28,7 @@ interface EquipmentSelection {
 export function useEquipmentSelection(): EquipmentSelection {
   const getDefaultTierDisabled = () => ({ 1: false, 2: false, 3: false });
   const disableLinkedItems = (itemName: string): void => {
-    if (!linkedItems[itemName]) {
-      return;
-    }
+    if (!linkedItems[itemName]) return;
 
     setSelectedItems((prev) => ({ ...prev, [itemName]: false }));
   };
@@ -39,7 +37,17 @@ export function useEquipmentSelection(): EquipmentSelection {
   );
   const [disabledItems, setDisabledItems] = useState<
     Record<string, DisabledInfo>
-  >({});
+  >({
+    "Head Gear": {
+      itemDisabled: false,
+      tierDisabled: {
+        1: true,
+        2: false,
+        3: false,
+      },
+    },
+  });
+
   const [linkedItems, setLinkedItems] = useState<Record<string, boolean>>({});
   const [isLinkedItems, setisLinkedItems] = useState(false);
   const [itemTiers, setItemTiers] = useState<Record<string, number>>(
@@ -64,9 +72,7 @@ export function useEquipmentSelection(): EquipmentSelection {
   }
 
   function onItemChange(item: Item, isChecked: boolean): void {
-    if (isChecked && areAllTiersDisabled(item)) {
-      return;
-    }
+    if (isChecked && areAllTiersDisabled(item)) return;
 
     if (
       isChecked &&
@@ -90,9 +96,7 @@ export function useEquipmentSelection(): EquipmentSelection {
       };
 
       itemData.forEach((otherItem) => {
-        if (!otherItem.linked) {
-          return;
-        }
+        if (!otherItem.linked) return;
 
         const isOtherItemSelected = updatedSelectedItems[otherItem.name];
         const updateLinkedStatus = isOtherItemSelected ? true : false;
@@ -117,11 +121,6 @@ export function useEquipmentSelection(): EquipmentSelection {
     });
   }
 
-  /**
-   * Updates the linked items based on the state of linked items.
-   *
-   * @param {boolean} isEnabled - Whether the linked items are enabled.
-   */
   function updateLinkedItemsState(isEnabled: boolean): void {
     if (!isEnabled) {
       const updatedLinkedItems = Object.fromEntries(
@@ -156,13 +155,6 @@ export function useEquipmentSelection(): EquipmentSelection {
     });
   }
 
-  /**
-   * Handles the change of tier for a specific item.
-   *
-   * @param {Item} item - The item whose tier is being changed.
-   * @param {number} tier - The tier number (1, 2, or 3).
-   * @param {boolean} isDisabled - Whether the tier is being disabled.
-   */
   function handleTierChange(
     item: Item,
     tier: number,

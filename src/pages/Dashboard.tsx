@@ -61,7 +61,7 @@ export function Dashboard(): JSX.Element {
   };
 
   return (
-    <div className="grid grid-cols-[1fr,400px] grid-rows-[auto,1fr] h-full m-auto max-w-[3000px] pb-[16px]">
+    <div className="grid grid-cols-[1fr,20vw] grid-rows-[auto,1fr] h-full m-auto max-w-[3000px] pb-[16px] overflow-x-hidden">
       <div className="relative overflow-auto">
         {equipmentConfigs.map(({ title, items }) => (
           <div

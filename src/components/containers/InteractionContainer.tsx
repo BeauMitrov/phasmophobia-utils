@@ -99,7 +99,7 @@ export function Information(props: InformationProps): JSX.Element {
   return (
     <div className="flex flex-col h-full">
       <div>
-        <div className="flex justify-between items-center border-b-[2px] border-text-colour text-text-colour text-[1.5em] text-left uppercase font-bold text-foreground font-[Roboto] pt-[6px]">
+        <div className="flex justify-between items-center border-b-2 border-text-colour text-text-colour text-[1.5vw] text-left uppercase font-bold text-foreground font-[Roboto]">
           <h1>Name</h1>
           <h1>Selected Tier</h1>
         </div>
@@ -107,11 +107,11 @@ export function Information(props: InformationProps): JSX.Element {
         {Object.entries(groupedItems).map(([type, typeItems], index) => (
           <div
             key={type}
-            className={`mb-[12px] ${
-              index !== 0 ? "" : "pt-[16px]"
-            } border-b-[2px] border-text-colour`}
+            className={`mb-2 ${
+              index !== 0 ? "" : "pt-2"
+            } border-b-2 border-text-colour`}
           >
-            <div className="flex flex-row flex-grow pb-[12px] ml-[-6px]">
+            <div className="flex flex-row flex-grow pb-3 ml-[-6px]">
               <div className="flex flex-col flex-grow">
                 {typeItems.map((item) => (
                   <div
@@ -119,7 +119,7 @@ export function Information(props: InformationProps): JSX.Element {
                     className="flex justify-between items-center"
                   >
                     <div
-                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none`}
+                      className={`font-bold uppercase text-[0.95vw] text-[Roboto] select-none`}
                     >
                       <Checkbox
                         isChecked={selectedItems[item.name]}
@@ -139,7 +139,7 @@ export function Information(props: InformationProps): JSX.Element {
                       />
                     </div>
                     <div
-                      className={`font-bold uppercase text-[1.1em] text-[Roboto] select-none cursor-pointer ${
+                      className={`font-bold uppercase text-[0.95vw] text-[Roboto] select-none cursor-pointer ${
                         linkedItems[item.name]
                           ? "text-text-colour"
                           : selectedItems[item.name]
@@ -177,19 +177,16 @@ export function Information(props: InformationProps): JSX.Element {
         ))}
       </div>
       <div className="flex flex-col space-y-2 mt-auto">
-        {/* <button className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled font-[Roboto]">
-            Placeholder
-        </button> */}
         <button
-          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
+          className="w-full shadow-sm font-semibold text-[1.25vw] p-[0.5vh] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
           onClick={props.showSettingsModal}
         >
           Settings
         </button>
         <div className="relative flex items-center">
-          <label className="flex justify-center items-center relative w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto] cursor-pointer select-none">
+          <label className="flex justify-center items-center relative w-full shadow-sm font-semibold text-[1.25vw] p-[0.5vh] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto] cursor-pointer select-none">
             <span className="text-center">Linked Items</span>
-            <div className="flex items-center justify-center absolute top-1/2 transform -translate-y-1/2 right-4 p-1 border-[2px] w-[24px] h-[24px]">
+            <div className="flex items-center justify-center absolute top-1/2 transform -translate-y-1/2 right-4 p-1 border-[0.15vw] h-[50%] aspect-square">
               <input
                 type="checkbox"
                 className="opacity-0 absolute w-full h-full left-0 top-0 z-10 cursor-pointer"
@@ -200,16 +197,18 @@ export function Information(props: InformationProps): JSX.Element {
                 checked={isLinkedItems}
               />
               {isLinkedItems && (
-                <FontAwesomeIcon
-                  icon={faCheck}
-                  className="text-background-colour w-[20px] h-[20px]"
-                />
+                <div className="absolute w-full h-full">
+                  <FontAwesomeIcon
+                    icon={faCheck}
+                    className="absolute text-background-colour w-full h-full"
+                  />
+                </div>
               )}
             </div>
           </label>
         </div>
         <button
-          className="w-full px-[16px] py-[10px] shadow-sm font-semibold text-[1.5em] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
+          className="w-full shadow-sm font-semibold text-[1.25vw] p-[0.5vh] text-background-colour uppercase bg-text-colour hover:bg-enabled duration-[25ms] font-[Roboto]"
           onClick={randomizedItems}
         >
           Randomize
